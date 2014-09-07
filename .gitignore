@@ -1,0 +1,8 @@
+_cache/
+_site/
+*.hi
+*.o
+bricolage
+template/calendar.html
+template/pager.html
+

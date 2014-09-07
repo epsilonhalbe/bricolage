@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Martin Heuschober" />
+  <meta name="author" content="CC-BY-NC-SA 4.0" />
+  <title>Record Syntax, Lenses and Prisms</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="reveal.js/css/theme/simple.css" id="theme">
+    <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+    <script>
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+    <!--[if lt IE 9]>
+    <script src="reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Record Syntax, Lenses and Prisms</h1>
+    <h2 class="author">Martin Heuschober</h2>
+    <h2 class="author"><a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC-BY-NC-SA 4.0</a></h2>
+    <h3 class="date">10. Mai 2014</h3>
+</section>
+
+<section class="slide level2">
+
+<link rel="stylesheet" href="highlight.js/styles/solarized_light.css"> <link rel="stylesheet" href="reveal.js/css/reveal.css"/>
+<script src="highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+</section>
+<section><section id="pirates-and-records" class="titleslide slide level1"><h1>Pirates and Records</h1></section><section id="algebraic-data-types" class="slide level2">
+<h1>Algebraic Data Types</h1>
+<p>The haskell equivalent of objects are <strong>A</strong>lgebraic <strong>D</strong>ata <strong>T</strong>ypes or ADTs for short.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Pirate</span> <span class="fu">=</span> <span class="dt">Captain</span> <span class="fu">|</span> <span class="dt">FirstMate</span> <span class="fu">|</span> <span class="dt">Marauder</span> <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre>
+</section><section class="slide level2">
+
+<ul>
+<li><code>data</code>
+<ul>
+<li>lhs type</li>
+<li>rhs &quot;constructors&quot;</li>
+</ul></li>
+<li><code>deriving</code></li>
+<li><code>Show</code></li>
+</ul>
+</section><section id="records" class="slide level2">
+<h1>Records</h1>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Pirate</span> <span class="fu">=</span> <span class="dt">Captain</span>   {<span class="ot"> name ::</span> <span class="dt">String</span>,<span class="ot"> ship ::</span> <span class="dt">String</span>}
+            <span class="fu">|</span> <span class="dt">FirstMate</span> {<span class="ot"> name ::</span> <span class="dt">String</span>,<span class="ot"> shanty ::</span> <span class="dt">String</span>}
+            <span class="fu">|</span> <span class="dt">Marauder</span>  {<span class="ot"> name ::</span> <span class="dt">String</span>,<span class="ot"> hometown ::</span> <span class="dt">String</span>}
+
+<span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Pirate</span> <span class="kw">where</span>
+  show (<span class="dt">Captain</span> n s) <span class="fu">=</span> <span class="st">&quot;Captain &quot;</span><span class="fu">++</span>n<span class="fu">++</span><span class="st">&quot; of the &quot;</span><span class="fu">++</span>s
+  show (<span class="dt">FirstMate</span> n s) <span class="fu">=</span> <span class="st">&quot;Mate &quot;</span><span class="fu">++</span>n<span class="fu">++</span><span class="st">&quot; sings &quot;</span><span class="fu">++</span>s
+  show (<span class="dt">Marauder</span> n h) <span class="fu">=</span> <span class="st">&quot;Fearsome Pirate &quot;</span><span class="fu">++</span>n<span class="fu">++</span><span class="st">&quot; from &quot;</span><span class="fu">++</span>h</code></pre>
+</section><section class="slide level2">
+
+<ul>
+<li>... <code>{name :: String, ...}</code> - record one way to have a functional getter/setter</li>
+<li><code>name</code> is a function from <code>Pirate</code> to <code>String</code></li>
+<li>in addition Haskell provides special syntax to <em>update</em> with <code>pirate {name = &quot;New Name&quot;}</code></li>
+</ul>
+</section><section id="some-examples" class="slide level2">
+<h1>Some Examples</h1>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">cpt <span class="fu">=</span> <span class="dt">Captain</span> <span class="st">&quot;Blackbeard&quot;</span> <span class="st">&quot;SS Sea Serpent&quot;</span>
+mt1 <span class="fu">=</span> <span class="dt">FirstMate</span> {name <span class="fu">=</span> <span class="st">&quot;Redbeard&quot;</span>,
+                 shanty <span class="fu">=</span> <span class="st">&quot;What shall we do with the drunken sailor&quot;</span>}
+mrd <span class="fu">=</span> <span class="dt">Marauder</span> {name <span class="fu">=</span> <span class="st">&quot;Neckbeard&quot;</span>}
+crw <span class="fu">=</span> map (\t <span class="ot">-&gt;</span> mrd {hometown <span class="fu">=</span> t})
+            [<span class="st">&quot;Yorkshire&quot;</span>, <span class="st">&quot;Jamestown&quot;</span>, <span class="st">&quot;Moscow&quot;</span>, <span class="st">&quot;Port-au-Prince&quot;</span>]
+pirates <span class="fu">=</span> [cpt,mt1]<span class="fu">++</span>crw
+
+cpt&#39; <span class="fu">=</span> cpt {name <span class="fu">=</span> <span class="st">&quot;Greybeard&quot;</span>}
+<span class="ot">=&gt;</span> <span class="st">&quot;Captain Greybeard of the SS Sea Serpent&quot;</span></code></pre>
+</section><section id="more-complicated-records" class="slide level2">
+<h1>More complicated records</h1>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Human</span> <span class="fu">=</span> <span class="dt">Attributes</span> {<span class="ot"> name ::</span> <span class="dt">String</span>,<span class="ot"> body ::</span> <span class="dt">Body</span>,<span class="ot"> age ::</span> <span class="dt">Int</span>}
+           <span class="kw">deriving</span> (<span class="dt">Show</span>)
+<span class="kw">data</span> <span class="dt">Body</span> <span class="fu">=</span> <span class="dt">Body</span> {<span class="ot"> hat ::</span> <span class="dt">Maybe</span> <span class="dt">Hat</span>
+                 ,<span class="ot"> beard ::</span> <span class="dt">Maybe</span> <span class="dt">Beard</span>
+                 ,<span class="ot"> torso ::</span> <span class="dt">Torso</span>
+                 ,<span class="ot"> accessories ::</span> [<span class="dt">Accessories</span>]}</code></pre>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Hat</span> <span class="fu">=</span> <span class="dt">Tricorne</span> <span class="fu">|</span> <span class="dt">WideBrimmedHat</span> <span class="fu">|</span> <span class="dt">Bandana</span> <span class="kw">deriving</span> (<span class="dt">Show</span>)
+<span class="kw">data</span> <span class="dt">Torso</span> <span class="fu">=</span> <span class="dt">Naked</span> <span class="fu">|</span> <span class="dt">Vest</span> <span class="fu">|</span> <span class="dt">ShabbyShirt</span> <span class="kw">deriving</span> (<span class="dt">Show</span>)
+<span class="kw">data</span> <span class="dt">Accessories</span> <span class="fu">=</span> <span class="dt">Parrot</span> <span class="fu">|</span> <span class="dt">Monkey</span> <span class="fu">|</span> <span class="dt">PegLeg</span> <span class="fu">|</span> <span class="dt">EyePatch</span> <span class="fu">|</span> <span class="dt">EarRing</span> <span class="fu">|</span> <span class="dt">Hook</span> <span class="kw">deriving</span> (<span class="dt">Show</span>)
+<span class="kw">data</span> <span class="dt">Beard</span> <span class="fu">=</span> <span class="dt">Beard</span> <span class="dt">Colour</span> <span class="dt">BeardType</span> <span class="kw">deriving</span> (<span class="dt">Show</span>)
+<span class="kw">data</span> <span class="dt">Colour</span> <span class="fu">=</span> <span class="dt">Black</span> <span class="fu">|</span> <span class="dt">Red</span> <span class="fu">|</span> <span class="dt">Blond</span> <span class="fu">|</span> <span class="dt">White</span> <span class="fu">|</span> <span class="dt">Brown</span> <span class="kw">deriving</span> (<span class="dt">Show</span>)
+<span class="kw">data</span> <span class="dt">BeardType</span> <span class="fu">=</span> <span class="dt">Moustache</span> <span class="fu">|</span> <span class="dt">Ladybeard</span> <span class="fu">|</span> <span class="dt">Goatee</span> <span class="fu">|</span> <span class="dt">FullBeard</span> <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Pirate</span> <span class="fu">=</span> <span class="dt">Captain</span>   {<span class="ot"> attributes ::</span> <span class="dt">Human</span>,<span class="ot"> ship ::</span> <span class="dt">String</span>}
+            <span class="fu">|</span> <span class="dt">FirstMate</span> {<span class="ot"> attributes ::</span> <span class="dt">Human</span>,<span class="ot"> shanty ::</span> <span class="dt">String</span>}
+            <span class="fu">|</span> <span class="dt">Marauder</span>  {<span class="ot"> attributes ::</span> <span class="dt">Human</span>,<span class="ot"> hometown ::</span> <span class="dt">String</span>}
+
+<span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Pirate</span> <span class="kw">where</span>
+  show (<span class="dt">Captain</span> a s)   <span class="fu">=</span>  <span class="st">&quot;The infamous Captain &quot;</span><span class="fu">++</span> name a<span class="fu">++</span><span class="st">&quot; of the &quot;</span><span class="fu">++</span>s<span class="fu">++</span><span class="st">&quot;\n&quot;</span>
+                       <span class="fu">++</span> show (body a)<span class="fu">++</span><span class="st">&quot;\n&quot;</span>
+                       <span class="fu">++</span> <span class="st">&quot;\t Age: &quot;</span><span class="fu">++</span>show (age a)</code></pre>
+<p><sub>~</sub></p>
+</section><section id="now-some-more-examples" class="slide level2">
+<h1>Now some more Examples</h1>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">cpt <span class="fu">=</span> <span class="dt">Captain</span> ( <span class="dt">Attributes</span>  <span class="st">&quot;Blackbeard&quot;</span>
+                           ( <span class="dt">Body</span> ( <span class="dt">Just</span> <span class="dt">Tricorne</span>)
+                                  ( <span class="dt">Just</span> (<span class="dt">Beard</span> <span class="dt">Black</span> <span class="dt">FullBeard</span>))
+                                    <span class="dt">Vest</span>
+                                    [<span class="dt">Parrot</span>, <span class="dt">PegLeg</span>]
+                                  )
+                            <span class="dv">42</span>)
+                <span class="st">&quot;SS Sea Serpent&quot;</span></code></pre>
+<p>Without the names records are barely readable.</p>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell">mt1 <span class="fu">=</span> <span class="dt">FirstMate</span> { attributes <span class="fu">=</span>
+                    <span class="dt">Attributes</span> { name <span class="fu">=</span> <span class="st">&quot;Redbeard&quot;</span>
+                               , body <span class="fu">=</span> <span class="dt">Body</span> { hat   <span class="fu">=</span> <span class="dt">Just</span> <span class="dt">WideBrimmedHat</span>
+                                             , beard <span class="fu">=</span> <span class="dt">Nothing</span>
+                                             , torso <span class="fu">=</span> <span class="dt">Naked</span>
+                                             , accessories <span class="fu">=</span> [<span class="dt">EarRing</span>, <span class="dt">Monkey</span>]
+                                             }
+                               , age <span class="fu">=</span> <span class="dv">30</span>
+                               }
+                , shanty <span class="fu">=</span> <span class="st">&quot;What shall we do with the drunken sailor&quot;</span>
+                }</code></pre>
+<p>With names they are verbose but readable.</p>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell">mrd <span class="fu">=</span> <span class="dt">Marauder</span> { attributes <span class="fu">=</span>
+                    <span class="dt">Attributes</span> { name <span class="fu">=</span> <span class="st">&quot;Neckbeard &quot;</span>
+                               , body <span class="fu">=</span> <span class="dt">Body</span> { hat   <span class="fu">=</span> <span class="dt">Just</span> <span class="dt">Bandana</span>
+                                             , beard <span class="fu">=</span> <span class="dt">Just</span> (<span class="dt">Beard</span> <span class="dt">Brown</span> <span class="dt">Goatee</span>)
+                                             , torso <span class="fu">=</span> <span class="dt">ShabbyShirt</span>
+                                             , accessories <span class="fu">=</span> [<span class="dt">EyePatch</span>]
+                                             }
+                               , age <span class="fu">=</span> <span class="dv">20</span>
+                               }
+                 <span class="co">-- note hometown is missing</span>
+                }</code></pre>
+</section><section id="and-now-the-tricky-part" class="slide level2">
+<h1>And now the tricky part</h1>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">crw <span class="fu">=</span> map (\(n,t) <span class="ot">-&gt;</span> mrd { attributes <span class="fu">=</span> (attributes mrd) {name <span class="fu">=</span> (name<span class="fu">.</span>attributes) mrd <span class="fu">++</span>  n}
+                         , hometown   <span class="fu">=</span> t})
+          [(<span class="st">&quot;Joe&quot;</span>  , <span class="st">&quot;Yorkshire&quot;</span>     )
+          ,(<span class="st">&quot;Jack&quot;</span> , <span class="st">&quot;Jamestown&quot;</span>     )
+          ,(<span class="st">&quot;Igor&quot;</span> , <span class="st">&quot;Moscow&quot;</span>        )
+          ,(<span class="st">&quot;Maria&quot;</span>, <span class="st">&quot;Port-au-Prince&quot;</span>)]</code></pre>
+<p>And that's one reason why you don't like to do stuff with record syntax and deeply nested data structures</p>
+<p>But then there comes Edward Kmett's lens library to the rescue.</p>
+</section></section>
+<section><section id="lenses" class="titleslide slide level1"><h1>Lenses</h1></section><section id="history" class="slide level2">
+<h1>History</h1>
+<p>Lenses are a quite interesting idea first mentioned by Twan van Laarhoven and have lived through a few implementations until the <code>lens</code>-library by Ed Kmett has proven to be the stable solution for now. It has a <em>batteries included</em> approach and provides many operators and a template haskell convention to generate lenses for your own algebraic data types.</p>
+</section><section id="how-stuff-works" class="slide level2">
+<h1>How stuff works</h1>
+<p>The convention is to put an <code>_</code> at the beginning of the record names in the record syntax definition. And then use the magic of template haskell to generate the corresponding lenses a.k.a. functional getters and setters with <code>makeLenses ''MyADT</code>.</p>
+</section><section id="ingredients" class="slide level2">
+<h1>Ingredients</h1>
+<p>For one we need the template haskell language pragma to make the magic work.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></code></pre>
+</section><section id="installation" class="slide level2">
+<h1>Installation</h1>
+<p>And we also need the lens library to be installed for which I recommend using <code>cabal</code>, the interface to the haskell packaging system.</p>
+<pre class="shell"><code>~ $ cabal update
+~ $ cabal install lens
+... this may take some time
+Installed lens-4.3.3</code></pre>
+</section><section id="import-and-definition" class="slide level2">
+<h1>Import and Definition</h1>
+<p>Next step is to do the import of the lens package and add a whole bunch of underscores ...</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Control.Lens</span>
+
+<span class="kw">data</span> <span class="dt">Human</span> <span class="fu">=</span> <span class="dt">Attributes</span> { _<span class="ot">name ::</span> <span class="dt">String</span>, _<span class="ot">body ::</span> <span class="dt">Body</span>, _<span class="ot">age ::</span> <span class="dt">Int</span>} <span class="kw">deriving</span> (<span class="dt">Show</span>)
+<span class="kw">data</span> <span class="dt">Body</span> <span class="fu">=</span> <span class="dt">Body</span> { _<span class="ot">hat ::</span> <span class="dt">Maybe</span> <span class="dt">Hat</span>
+                 , _<span class="ot">beard ::</span> <span class="dt">Maybe</span> <span class="dt">Beard</span>
+                 , _<span class="ot">torso ::</span> <span class="dt">Torso</span>
+                 , _<span class="ot">accessories ::</span> [<span class="dt">Accessories</span>]}</code></pre>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Pirate</span> <span class="fu">=</span> <span class="dt">Captain</span>   { _<span class="ot">attributes ::</span> <span class="dt">Human</span>, _<span class="ot">ship ::</span> <span class="dt">String</span>}
+            <span class="fu">|</span> <span class="dt">FirstMate</span> { _<span class="ot">attributes ::</span> <span class="dt">Human</span>, _<span class="ot">shanty ::</span> <span class="dt">String</span>}
+            <span class="fu">|</span> <span class="dt">Marauder</span>  { _<span class="ot">attributes ::</span> <span class="dt">Human</span>, _<span class="ot">hometown ::</span> <span class="dt">String</span>}</code></pre>
+<p>... and of course create the lenses. (In the background template haskell now creates functions attributes, ship, shanty and so on.)</p>
+</section><section id="abracadabra" class="slide level2">
+<h1>Abracadabra</h1>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">makeLenses <span class="ch">&#39;&#39;</span><span class="dt">Human</span>
+makeLenses <span class="ch">&#39;&#39;</span><span class="dt">Body</span>
+makeLenses <span class="ch">&#39;&#39;</span><span class="dt">Pirate</span></code></pre>
+</section><section id="and-show" class="slide level2">
+<h1>And &quot;Show&quot;</h1>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Pirate</span> <span class="kw">where</span>
+  show (<span class="dt">Captain</span> a s)   <span class="fu">=</span>  <span class="st">&quot;The infamous Captain &quot;</span><span class="fu">++</span> a<span class="fu">^.</span>name<span class="fu">++</span><span class="st">&quot; of the &quot;</span><span class="fu">++</span> s<span class="fu">++</span><span class="st">&quot;\n&quot;</span>
+                       <span class="fu">++</span> show (a<span class="fu">^.</span>body)<span class="fu">++</span><span class="st">&quot;\n&quot;</span>
+                       <span class="fu">++</span> <span class="st">&quot;\t Age: &quot;</span><span class="fu">++</span>show (a<span class="fu">^.</span>age)</code></pre>
+<p>So what is this <code>^.</code> operator, it is an alias for the <code>view</code>-function that can focus on the parts of a lens.</p>
+</section><section id="finally-type-signatures" class="slide level2">
+<h1>Finally type signatures</h1>
+<p>The type signature for <code>(^.)</code> is a bit complicated, but if we combine it with the generated functions we see</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">GHCi</span><span class="fu">&gt;</span> <span class="fu">:</span>t (<span class="fu">^.</span>attributes)
+(<span class="fu">^.</span>attributes)<span class="ot"> ::</span> <span class="dt">Pirate</span> <span class="ot">-&gt;</span> <span class="dt">Human</span>
+<span class="dt">GHCi</span><span class="fu">&gt;</span> <span class="fu">:</span>t (<span class="fu">^.</span>attributes<span class="fu">.</span>name)
+(<span class="fu">^.</span>attributes<span class="fu">.</span>name)<span class="ot"> ::</span> <span class="dt">Pirate</span> <span class="ot">-&gt;</span> <span class="dt">String</span></code></pre>
+</section><section id="more-type-signatures" class="slide level2">
+<h1>More type signatures</h1>
+<p>But where the combined type signature of <code>(^.)</code> and <code>attributes</code> is simple their own type signature is - let's just call it <em>not</em> simple.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">GHCi</span><span class="fu">&gt;</span> <span class="fu">:</span>t (<span class="fu">^.</span>)
+<span class="ot">(^.) ::</span> s <span class="ot">-&gt;</span> <span class="dt">Getting</span> a s a <span class="ot">-&gt;</span> a
+<span class="dt">GHCi</span><span class="fu">&gt;</span> <span class="fu">:</span>t attributes
+<span class="ot">attributes ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (<span class="dt">Human</span> <span class="ot">-&gt;</span> f <span class="dt">Human</span>) <span class="ot">-&gt;</span> <span class="dt">Pirate</span> <span class="ot">-&gt;</span> f <span class="dt">Pirate</span></code></pre>
+</section><section class="slide level2">
+
+<p>As we saw we have something called <code>Getting</code> so there should also be some setting stuff and indeed we have a <code>set</code>-function and the infix alias <code>(.~)</code> which is more useful with the <code>&amp;</code>-operator which is just reverse function application: <code>x &amp; f = f x</code>.</p>
+<p>A few examples should provide a bit more insight...</p>
+</section><section id="lens-examples" class="slide level2">
+<h1>Lens examples</h1>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">hel <span class="fu">=</span> cpt <span class="fu">&amp;</span> attributes<span class="fu">.</span>name<span class="fu">.~</span> <span class="st">&quot;Hellscream&quot;</span>
+
+<span class="dt">GHCi</span> <span class="fu">&gt;</span> hel
+<span class="dt">The</span> infamous <span class="dt">Captain</span> <span class="dt">Hellscream</span> <span class="kw">of</span> the <span class="dt">SS</span> <span class="dt">Sea</span> <span class="dt">Serpent</span>
+        <span class="dt">Hat</span><span class="fu">:</span> <span class="dt">Just</span> <span class="dt">Tricorne</span>
+        <span class="fu">...</span>
+        <span class="dt">Age</span><span class="fu">:</span> <span class="dv">42</span></code></pre>
+</section><section id="concatenating-lenses" class="slide level2">
+<h1>Concatenating Lenses</h1>
+<p>... and see that now it is really easy to undress our pirates with:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">undress pirate <span class="fu">=</span> pirate <span class="fu">&amp;</span> attributes <span class="fu">.</span> body <span class="fu">.</span> hat <span class="fu">.~</span> <span class="dt">Nothing</span>
+                        <span class="fu">&amp;</span> attributes <span class="fu">.</span> body <span class="fu">.</span> beard <span class="fu">.~</span> <span class="dt">Nothing</span>
+                        <span class="fu">&amp;</span> attributes <span class="fu">.</span> body <span class="fu">.</span> torso <span class="fu">.~</span> <span class="dt">Naked</span>
+                        <span class="fu">&amp;</span> attributes <span class="fu">.</span> body <span class="fu">.</span> accessories <span class="fu">.~</span> []</code></pre>
+</section><section id="over-and" class="slide level2">
+<h1>Over and</h1>
+<p>So we have getters and setters, but we want more we want to use functions, this is where the <code>over</code> function or the <code>(%~)</code>-operator comes into play.</p>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">GHCi</span><span class="fu">&gt;</span> hel <span class="fu">&amp;</span> attributes <span class="fu">.</span> name <span class="fu">%~</span> map toUpper 
+<span class="dt">The</span> infamous <span class="dt">Captain</span> <span class="dt">HELLSCREAM</span> <span class="kw">of</span> the <span class="dt">SS</span> <span class="dt">Sea</span> <span class="dt">Serpent</span>
+        <span class="dt">Hat</span><span class="fu">:</span> <span class="dt">Just</span> <span class="dt">Tricorne</span>
+        <span class="fu">...</span>
+        <span class="dt">Age</span><span class="fu">:</span> <span class="dv">42</span>
+
+<span class="dt">GHCi</span><span class="fu">&gt;</span> hel <span class="fu">&amp;</span> attributes <span class="fu">.</span> age <span class="fu">%~</span> (<span class="fu">+</span><span class="dv">10</span>)
+<span class="dt">The</span> infamous <span class="dt">Captain</span> <span class="dt">Hellscream</span> <span class="kw">of</span> the <span class="dt">SS</span> <span class="dt">Sea</span> <span class="dt">Serpent</span>
+        <span class="dt">Hat</span><span class="fu">:</span> <span class="dt">Just</span> <span class="dt">Tricorne</span>
+        <span class="fu">...</span>
+        <span class="dt">Age</span><span class="fu">:</span> <span class="dv">52</span></code></pre>
+</section><section id="out" class="slide level2">
+<h1>Out</h1>
+<p>Thank you for your attention!</p>
+</section></section>
+    </div>
+  </div>
+
+
+  <script src="reveal.js/lib/js/head.min.js"></script>
+  <script src="reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: 'solarized', // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: 'reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: 'reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+    </body>
+</html>
