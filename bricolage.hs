@@ -11,7 +11,7 @@ import           Hakyll
 
 --------------------------------------------------------------------------------
 main :: IO ()
-main = hakyll $ do
+main = hakyllWith config $ do
 
     match ("images/*" .||. "css/*/*" .||. "files/*" .||. "favicon.ico") $ do
         route   idRoute
@@ -127,3 +127,7 @@ feedConfiguration title = FeedConfiguration
     , feedAuthorEmail = "epsilonhalbe@gmail.com"
     , feedRoot        = "http://epsilonhalbe.github.io"
     }
+
+config :: Configuration
+config = defaultConfiguration
+          {deployCommand = "rsync -avz ./_site/ /home/epsilonhalbe/.data/epsilonhalbe.github.io"}

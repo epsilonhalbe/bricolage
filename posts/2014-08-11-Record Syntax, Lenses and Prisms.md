@@ -1,5 +1,6 @@
 ---
-description: Functional getters and setters - Part 2
+title: Record Syntax, Lenses and Prisms: Part 2 - Lenses
+description: A short introduction to lenses
 tags: haskell, eng
 ---
 
