@@ -267,7 +267,7 @@ makeLenses <span class="ch">&#39;&#39;</span><span class="dt">Pirate</span></cod
 <p>So we have getters and setters, but we want more we want to use functions, this is where the <code>over</code> function or the <code>(%~)</code>-operator comes into play.</p>
 </section><section class="slide level2">
 
-<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">GHCi</span><span class="fu">&gt;</span> hel <span class="fu">&amp;</span> attributes <span class="fu">.</span> name <span class="fu">%~</span> map toUpper 
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">GHCi</span><span class="fu">&gt;</span> hel <span class="fu">&amp;</span> attributes <span class="fu">.</span> name <span class="fu">%~</span> map toUpper
 <span class="dt">The</span> infamous <span class="dt">Captain</span> <span class="dt">HELLSCREAM</span> <span class="kw">of</span> the <span class="dt">SS</span> <span class="dt">Sea</span> <span class="dt">Serpent</span>
         <span class="dt">Hat</span><span class="fu">:</span> <span class="dt">Just</span> <span class="dt">Tricorne</span>
         <span class="fu">...</span>
@@ -278,6 +278,151 @@ makeLenses <span class="ch">&#39;&#39;</span><span class="dt">Pirate</span></cod
         <span class="dt">Hat</span><span class="fu">:</span> <span class="dt">Just</span> <span class="dt">Tricorne</span>
         <span class="fu">...</span>
         <span class="dt">Age</span><span class="fu">:</span> <span class="dv">52</span></code></pre>
+</section></section>
+<section><section id="prisms" class="titleslide slide level1"><h1>Prisms</h1></section><section id="so-what-are-prisms" class="slide level2">
+<h1>So what are prisms?</h1>
+<p>Prisms are like lenses just for sum types ... - the most memorable sentence, but I don't think very helpful at first glance.</p>
+<p>So let us start with defining a sum type.</p>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="fu">&gt;</span> <span class="kw">data</span> <span class="dt">Town</span> <span class="fu">=</span> <span class="dt">Prague</span> <span class="fu">|</span> <span class="dt">Vienna</span> <span class="fu">|</span> <span class="dt">Kingston</span> <span class="fu">|</span> <span class="dt">London</span> <span class="fu">|</span> <span class="dt">Hipsterhausen</span> <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)
+
+<span class="fu">&gt;</span> <span class="kw">data</span> <span class="dt">Pirate</span> <span class="fu">=</span> <span class="dt">Captain</span>   { _<span class="ot">attributes ::</span> <span class="dt">Human</span>, _<span class="ot">ship ::</span> <span class="dt">String</span>}
+<span class="fu">&gt;</span>             <span class="fu">|</span> <span class="dt">FirstMate</span> { _<span class="ot">attributes ::</span> <span class="dt">Human</span>, _<span class="ot">shanty ::</span> <span class="dt">String</span>}
+<span class="fu">&gt;</span>             <span class="fu">|</span> <span class="dt">Marauder</span>  { _<span class="ot">attributes ::</span> <span class="dt">Human</span>, _<span class="ot">hometown ::</span> <span class="dt">Town</span>}
+
+<span class="fu">&gt;</span> makeLenses <span class="ch">&#39;&#39;</span><span class="dt">Human</span>
+<span class="fu">&gt;</span> makeLenses <span class="ch">&#39;&#39;</span><span class="dt">Body</span>
+<span class="fu">&gt;</span> makeLenses <span class="ch">&#39;&#39;</span><span class="dt">Pirate</span></code></pre>
+<p>Pirate is a sum type - with different records in each constructor.</p>
+</section></section>
+<section><section id="a-tangent-on-sums-and-products" class="titleslide slide level1"><h1>A tangent on sums and products</h1></section><section id="why-is-the-above-called-a-sum-type" class="slide level2">
+<h1>Why is the above called a sum type?</h1>
+<p>Begin with defining</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="kw">data</span> <span class="dt">Sum</span> <span class="fu">=</span> <span class="dt">One</span> <span class="fu">|</span> <span class="dt">Two</span> <span class="fu">|</span> <span class="dt">Three</span></code></pre>
+<p>then <code>x :: Sum</code> has exactly three values it can assume.</p>
+</section><section class="slide level2">
+
+<p>Namely</p>
+<ul>
+<li><code>x = One</code></li>
+<li><code>x = Two</code></li>
+<li><code>x = Three</code></li>
+</ul>
+</section><section id="so-how-come-product-types-to-their-names" class="slide level2">
+<h1>So how come product types to their names?</h1>
+<p>You might already guess it.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="kw">data</span> <span class="dt">Product</span> <span class="fu">=</span> <span class="dt">P</span> <span class="dt">Sum</span> <span class="dt">Sum</span> <span class="co">-- equivalent to (Sum, Sum)</span></code></pre>
+<p>A variable <code>y :: Product</code> can have <code>|Sum|×|Sum|</code> many possible values:</p>
+</section><section class="slide level2">
+
+<ul>
+<li><code>y = P One One</code></li>
+<li><code>y = P One Two</code></li>
+<li><code>y = P One Three</code></li>
+<li><code>y = P Two One</code></li>
+<li><code>y = P Two Two</code></li>
+<li><code>y = P Two Three</code></li>
+<li><code>y = P Three One</code></li>
+<li><code>y = P Three Two</code></li>
+<li><code>y = P Three Three</code></li>
+</ul>
+</section><section id="so-can-anybody-find-what-exponential-types-are" class="slide level2">
+<h1>So can anybody find what exponential types are?</h1>
+</section><section id="the-answer-is" class="slide level2">
+<h1>The answer is</h1>
+<h3 id="functions">Functions</h3>
+</section><section class="slide level2">
+
+<p>Let us define</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="kw">data</span> <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">One</span> <span class="fu">|</span> <span class="dt">Two</span>
+<span class="kw">data</span> <span class="dt">THREE</span> <span class="fu">=</span> <span class="dt">ONE</span> <span class="fu">|</span> <span class="dt">TWO</span> <span class="fu">|</span> <span class="dt">THREE</span></code></pre>
+<p>Then the functions from <code>Two -&gt; THREE</code> have exactly <code>|Two|^|THREE|</code> many elements.</p>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+one,two,three,four,five,six,seven,<span class="ot">eight ::</span> <span class="dt">Two</span> <span class="ot">-&gt;</span> <span class="dt">THREE</span>
+one   <span class="dt">One</span> <span class="fu">=</span> <span class="dt">ONE</span>    <span class="fu">|</span> five  <span class="dt">One</span> <span class="fu">=</span> <span class="dt">ONE</span>
+one   <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">ONE</span>    <span class="fu">|</span> five  <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">THREE</span>
+two   <span class="dt">One</span> <span class="fu">=</span> <span class="dt">TWO</span>    <span class="fu">|</span> six   <span class="dt">One</span> <span class="fu">=</span> <span class="dt">TWO</span>
+two   <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">TWO</span>    <span class="fu">|</span> six   <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">THREE</span>
+three <span class="dt">One</span> <span class="fu">=</span> <span class="dt">THREE</span>  <span class="fu">|</span> seven <span class="dt">One</span> <span class="fu">=</span> <span class="dt">THREE</span>
+three <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">THREE</span>  <span class="fu">|</span> seven <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">ONE</span>
+four  <span class="dt">One</span> <span class="fu">=</span> <span class="dt">ONE</span>    <span class="fu">|</span> eight <span class="dt">One</span> <span class="fu">=</span> <span class="dt">THREE</span>
+four  <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">TWO</span>    <span class="fu">|</span> eight <span class="dt">Two</span> <span class="fu">=</span> <span class="dt">TWO</span></code></pre>
+</section></section>
+<section><section id="back-to" class="titleslide slide level1"><h1>Back to</h1></section><section id="prisms-1" class="slide level2">
+<h1>Prisms</h1>
+<p>The problem with lenses is that for <code>cpt :: Pirate</code> some getters don't make sense, like <code>cpt^.shanty</code> or <code>mrd^.ship</code>.</p>
+<p>There is a group of structures that have a neutral/zero/one element - <code>String</code> has <code>&quot;&quot;</code>, <code>List</code> has <code>[]</code> - one common abstraction over this would be <code>Monoid</code>.</p>
+<p>But for others like <code>Town</code> we have no such candidate.</p>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="dt">Prelude</span> <span class="fu">&gt;</span> cpt<span class="fu">^.</span>shanty
+<span class="st">&quot;&quot;</span>
+<span class="dt">Prelude</span> <span class="fu">&gt;</span> cpt<span class="fu">^.</span>hometown
+<span class="fu">...</span>
+error message complaining about <span class="dt">Town</span> not being a monoid
+<span class="fu">...</span></code></pre>
+</section><section class="slide level2">
+
+<p>So an easy way to get <em>special</em> elements is combining it with <code>Maybe</code>. And that's what prisms are - getters with <code>Maybe</code>-values instead of errors.</p>
+<p>So how do we get them - again as with prisms we (have to) build them with template haskell magic using</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="fu">&gt;</span> makePrisms <span class="ch">&#39;&#39;</span><span class="dt">Human</span>
+<span class="fu">&gt;</span> makePrisms <span class="ch">&#39;&#39;</span><span class="dt">Body</span>
+<span class="fu">&gt;</span> makePrisms <span class="ch">&#39;&#39;</span><span class="dt">Pirate</span></code></pre>
+</section><section class="slide level2">
+
+<p>This magic words create &quot;constructors&quot; <code>_Captain</code>, <code>_FirstMate</code> and <code>_Marauder</code> and the lens library provides functions <code>preview</code>, <code>review</code> and <code>^?</code>.</p>
+<p>Now what are those functions doing - they select one <em>branch</em> in a sum type.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="dt">Prelude</span><span class="fu">&gt;</span> preview _<span class="dt">Captain</span> cpt
+<span class="dt">Just</span> (<span class="dt">Attributes</span> {<span class="fu">...</span>},<span class="st">&quot;SS Sea Serpent&quot;</span>)
+<span class="dt">Prelude</span><span class="fu">&gt;</span> preview _<span class="dt">Captain</span> mrd
+<span class="dt">Nothing</span></code></pre>
+</section><section class="slide level2">
+
+<p>But there is also an infix shortcut for <code>preview</code> - <code>(^?)</code> so we could have written the above <code>cpt^._Captain</code> or use it with accessor-like functions as <code>hometown</code>,<code>ship</code>,<code>shanty</code> or <code>attributes</code>.</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="dt">Prelude</span><span class="fu">&gt;</span> cpt<span class="fu">^?</span>hometown
+<span class="dt">Nothing</span>
+<span class="dt">Prelude</span><span class="fu">&gt;</span> cpt<span class="fu">^?</span>ship
+<span class="dt">Just</span> <span class="st">&quot;SS Sea Serpent&quot;</span>
+<span class="dt">Prelude</span><span class="fu">&gt;</span> mrd<span class="fu">^?</span>hometown
+<span class="dt">Just</span> <span class="dt">Hipsterhausen</span></code></pre>
+</section><section id="so-what-about-review" class="slide level2">
+<h1>So what about <code>review</code>?</h1>
+<p>The <code>review</code> function can create new things from the results of <code>preview</code>, well not exactly but almost and with use of <code>(&lt;$&gt;)</code> from <code>Control.Applicative</code> we can make them work together</p>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t preview _<span class="dt">Captain</span> cpt
+preview _<span class="dt">Captain</span><span class="ot"> cpt ::</span> <span class="dt">Maybe</span> (<span class="dt">Human</span>, <span class="dt">String</span>)
+<span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="kw">let</span> <span class="dt">Just</span> x <span class="fu">=</span> preview _<span class="dt">Captain</span> cpt
+<span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t review _<span class="dt">Captain</span> x
+review _<span class="dt">Captain</span><span class="ot"> x ::</span> <span class="dt">Pirate</span></code></pre>
+</section><section class="slide level2">
+
+<pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="dt">Prelude</span><span class="fu">&gt;</span> <span class="fu">:</span>t review _<span class="dt">Captain</span> <span class="fu">&lt;$&gt;</span> preview _<span class="dt">Captain</span> cpt
+review _<span class="dt">Captain</span> <span class="fu">&lt;$&gt;</span> preview _<span class="dt">Captain</span><span class="ot"> cpt ::</span> <span class="dt">Maybe</span> <span class="dt">Pirate</span>
+<span class="dt">Prelude</span><span class="fu">&gt;</span> review _<span class="dt">Captain</span> <span class="fu">&lt;$&gt;</span> preview _<span class="dt">Captain</span> cpt
+<span class="dt">Just</span> <span class="dt">Captain</span> {<span class="dt">Attributes</span> {<span class="fu">...</span>},<span class="st">&quot;SS Sea Serpent&quot;</span>}
+<span class="dt">Prelude</span><span class="fu">&gt;</span> review _<span class="dt">Captain</span> <span class="fu">&lt;$&gt;</span> preview _<span class="dt">Captain</span> mrd
+<span class="dt">Nothing</span>
+<span class="dt">Prelude</span><span class="fu">&gt;</span> review _<span class="dt">Captain</span> <span class="fu">&lt;$&gt;</span> preview _<span class="dt">Marauder</span> mrd
+<span class="fu">...</span> <span class="dt">Error</span> <span class="fu">...</span> <span class="co">-- Captain needs String (ship name) where Marauder has a Town as</span>
+a second argument</code></pre>
+</section><section class="slide level2">
+
+<p>So Prisms do not fix everything - but provide a safety layer for simple accessing stuff and sometimes for generating stuff as well.</p>
+<p>So that's all I know about Lenses and Prisms - for understanding the type signatures - I still do not feel confident to present about.</p>
 </section><section id="out" class="slide level2">
 <h1>Out</h1>
 <p>Thank you for your attention!</p>

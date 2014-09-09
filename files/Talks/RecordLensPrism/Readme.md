@@ -330,7 +330,7 @@ is where the `over` function or the `(%~)`-operator comes into play.
 --------------------------------------------------------------------------------
 
 ~~~haskell
-GHCi> hel & attributes . name %~ map toUpper 
+GHCi> hel & attributes . name %~ map toUpper
 The infamous Captain HELLSCREAM of the SS Sea Serpent
         Hat: Just Tricorne
         ...
@@ -342,6 +342,241 @@ The infamous Captain Hellscream of the SS Sea Serpent
         ...
         Age: 52
 ~~~
+
+Prisms
+======
+
+So what are prisms?
+-------------------
+
+Prisms are like lenses just for sum types ... - the most memorable sentence, but
+I don't think very helpful at first glance.
+
+So let us start with defining a sum type.
+
+--------------------------------------------------------------------------------
+
+~~~haskell
+
+> data Town = Prague | Vienna | Kingston | London | Hipsterhausen deriving (Show, Eq)
+
+> data Pirate = Captain   { _attributes :: Human, _ship :: String}
+>             | FirstMate { _attributes :: Human, _shanty :: String}
+>             | Marauder  { _attributes :: Human, _hometown :: Town}
+
+> makeLenses ''Human
+> makeLenses ''Body
+> makeLenses ''Pirate
+
+~~~
+
+Pirate is a sum type - with different records in each constructor.
+
+A tangent on sums and products
+==============================
+
+Why is the above called a sum type?
+-----------------------------------
+
+Begin with defining
+
+~~~haskell
+
+data Sum = One | Two | Three
+
+~~~
+
+then `x :: Sum` has exactly three values it can assume.
+
+--------------------------------------------------------------------------------
+
+Namely
+
+- `x = One`
+- `x = Two`
+- `x = Three`
+
+So how come product types to their names?
+-------
+
+You might already guess it.
+
+~~~haskell
+
+data Product = P Sum Sum -- equivalent to (Sum, Sum)
+
+~~~
+
+A variable `y :: Product` can have `|Sum|×|Sum|` many possible values:
+
+--------------------------------------------------------------------------------
+
+- `y = P One One`
+- `y = P One Two`
+- `y = P One Three`
+- `y = P Two One`
+- `y = P Two Two`
+- `y = P Two Three`
+- `y = P Three One`
+- `y = P Three Two`
+- `y = P Three Three`
+
+So can anybody find what exponential types are?
+-----------------------------------------------
+
+The answer is
+-------------
+
+### Functions
+
+--------------------------------------------------------------------------------
+
+Let us define
+
+~~~haskell
+
+data Two = One | Two
+data THREE = ONE | TWO | THREE
+
+~~~
+
+Then the functions from `Two -> THREE` have exactly `|Two|^|THREE|`
+many elements.
+
+--------------------------------------------------------------------------------
+
+~~~haskell
+
+one,two,three,four,five,six,seven,eight :: Two -> THREE
+one   One = ONE    | five  One = ONE
+one   Two = ONE    | five  Two = THREE
+two   One = TWO    | six   One = TWO
+two   Two = TWO    | six   Two = THREE
+three One = THREE  | seven One = THREE
+three Two = THREE  | seven Two = ONE
+four  One = ONE    | eight One = THREE
+four  Two = TWO    | eight Two = TWO
+
+~~~
+
+Back to
+=======
+
+Prisms
+------
+
+The problem with lenses is that for `cpt :: Pirate` some getters don't make
+sense, like `cpt^.shanty` or `mrd^.ship`.
+
+There is a group of structures that have a neutral/zero/one element - `String`
+has `""`, `List` has `[]` - one common abstraction over this would be `Monoid`.
+
+But for others like `Town` we have no such candidate.
+
+--------------------------------------------------------------------------------
+
+~~~haskell
+
+Prelude > cpt^.shanty
+""
+Prelude > cpt^.hometown
+...
+error message complaining about Town not being a monoid
+...
+
+~~~
+
+--------------------------------------------------------------------------------
+
+So an easy way to get *special* elements is combining it with `Maybe`. And
+that's what prisms are - getters with `Maybe`-values instead of errors.
+
+So how do we get them - again as with prisms we (have to) build them with
+template haskell magic using
+
+~~~haskell
+
+> makePrisms ''Human
+> makePrisms ''Body
+> makePrisms ''Pirate
+
+~~~
+
+--------------------------------------------------------------------------------
+
+This magic words create "constructors" `_Captain`, `_FirstMate` and `_Marauder`
+and the lens library provides functions `preview`, `review` and `^?`.
+
+Now what are those functions doing - they select one *branch* in a sum type.
+
+~~~haskell
+
+Prelude> preview _Captain cpt
+Just (Attributes {...},"SS Sea Serpent")
+Prelude> preview _Captain mrd
+Nothing
+
+~~~
+
+--------------------------------------------------------------------------------
+
+But there is also an infix shortcut for `preview` - `(^?)` so we could have
+written the above `cpt^._Captain` or use it with accessor-like functions as
+`hometown`,`ship`,`shanty` or `attributes`.
+
+~~~haskell
+
+Prelude> cpt^?hometown
+Nothing
+Prelude> cpt^?ship
+Just "SS Sea Serpent"
+Prelude> mrd^?hometown
+Just Hipsterhausen
+
+~~~
+
+So what about `review`?
+-----------------------
+
+The `review` function can create new things from the results of `preview`, well
+not exactly but almost and with use of `(<$>)` from `Control.Applicative` we
+can make them work together
+
+--------------------------------------------------------------------------------
+
+~~~haskell
+
+Prelude> :t preview _Captain cpt
+preview _Captain cpt :: Maybe (Human, String)
+Prelude> let Just x = preview _Captain cpt
+Prelude> :t review _Captain x
+review _Captain x :: Pirate
+
+~~~
+
+--------------------------------------------------------------------------------
+
+~~~haskell
+
+Prelude> :t review _Captain <$> preview _Captain cpt
+review _Captain <$> preview _Captain cpt :: Maybe Pirate
+Prelude> review _Captain <$> preview _Captain cpt
+Just Captain {Attributes {...},"SS Sea Serpent"}
+Prelude> review _Captain <$> preview _Captain mrd
+Nothing
+Prelude> review _Captain <$> preview _Marauder mrd
+... Error ... -- Captain needs String (ship name) where Marauder has a Town as
+a second argument
+
+~~~
+
+--------------------------------------------------------------------------------
+
+So Prisms do not fix everything - but provide a safety layer for simple
+accessing stuff and sometimes for generating stuff as well.
+
+So that's all I know about Lenses and Prisms - for understanding the type
+signatures - I still do not feel confident to present about.
 
 Out
 ---
