@@ -1,1 +1,0 @@
-/home/epsilonhalbe/procrapping/javascripts/reveal.js

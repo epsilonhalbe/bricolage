@@ -125,9 +125,11 @@ feedConfiguration title = FeedConfiguration
     , feedDescription = "Personal blog of epsilonhalbe"
     , feedAuthorName  = "Martin Heuschober"
     , feedAuthorEmail = "epsilonhalbe@gmail.com"
-    , feedRoot        = "http://epsilonhalbe.github.io"
+    , feedRoot        = "//epsilonhalbe.github.io"
     }
 
 config :: Configuration
 config = defaultConfiguration
-          {deployCommand = "rsync -avz ./_site/ /home/epsilonhalbe/.data/epsilonhalbe.github.io"}
+          { deployCommand = "rsync -avz ./_site/ /home/epsilonhalbe/epsilonhalbe.github.io"
+          , previewHost = "0.0.0.0"
+          }
