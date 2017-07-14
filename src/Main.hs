@@ -17,7 +17,9 @@ import           System.IO.Unsafe (unsafePerformIO)
 main :: IO ()
 main = hakyllWith config $ do
 
-    match (anyOf ["**.png", "**/*.js", "images/*", "files/*", "favicon.ico"]) $ do
+    match (anyOf [ "**.svg" , "**.png" , "**/*.js"
+                 , "projects/**/*.elm" , "projects/**/*.html", "projects/**/*.json"
+                 , "files/*", "favicon.ico"]) $ do
         route   idRoute
         compile copyFileCompiler
 
@@ -96,7 +98,7 @@ main = hakyllWith config $ do
 
 -------------------------------------------------------------------------- EXTRA
 
-    match "projects/*" $ do
+    match "projects/**/*.md" $ do
         route   $ setExtension ".html"
         compile $ (fmap demoteHeaders <$> (pandocCompiler >>= saveSnapshot "content"))
                 >>= loadAndApplyTemplate "templates/post.html" (postCtx tags)
@@ -105,8 +107,8 @@ main = hakyllWith config $ do
 
     create ["projects.html"] $ do
         route idRoute
-        compile $ do posts <- recentFirst =<< loadAll "posts/*"
-                     let ctx = constField "title" "Posts" <>
+        compile $ do posts <- recentFirst =<< loadAll "projects/**/*.md"
+                     let ctx = constField "title" "Projects" <>
                                listField "posts" (postCtx tags) (return posts) <>
                                defaultContext
                      makePost ctx
