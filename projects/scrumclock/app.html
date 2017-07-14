@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Scrum Clock</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  </head>
+  <body>
+    <script src="./app.js"></script>
+    <script>
+      storedState = localStorage.getItem('saved-teams');
+      initialState = storedState ? JSON.parse(storedState) : null;
+      scrumclock = Elm.Main.fullscreen(initialState);
+
+      scrumclock.ports.saveTeams.subscribe(function(state) {
+          localStorage.setItem('saved-teams', JSON.stringify(state));
+      });
+    </script>
+  </body>
