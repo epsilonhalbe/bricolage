@@ -2,7 +2,7 @@
 title: Mohnstrudl
 description: Ein Klassiker nicht nur zu Ostern - mit Rosinen oder ohne
 tags: rezepte, deu, vegetarisch
----
+...
 
 # Kranzkuchen Mohnstrudel
 

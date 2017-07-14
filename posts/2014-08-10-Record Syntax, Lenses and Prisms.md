@@ -1,8 +1,8 @@
 ---
-title: Record Syntax, Lenses and Prisms: Part 1 - Record Syntax
+title: 'Record Syntax, Lenses and Prisms: Part 1 - Record Syntax'
 description: Functional getters and setters and a bit more
 tags: haskell, eng
----
+...
 
 Intro
 =====

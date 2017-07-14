@@ -1,8 +1,8 @@
 ---
 title: Ein bisschen wie LEGO<sup>®</sup>
-description: Ein Vergleich: Haskell und Lego - wer hätte gedacht, dass diese beiden so viel gemeinsam haben.
+description: 'Ein Vergleich: Haskell und Lego - wer hätte gedacht, dass diese beiden so viel gemeinsam haben.'
 tags: haskell, deu
----
+...
 <!--
 <link rel="stylesheet" href="highlight.js/styles/solarized_light.css">
  <link rel="stylesheet" href="reveal.js/css/reveal.css"/>

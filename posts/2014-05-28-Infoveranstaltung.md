@@ -2,7 +2,7 @@
 title: Gibt es ein Leben nach der Uni
 description: Eine Zusammenfassung meines Einstiegs in die Arbeitswelt und ein paar Tipps.<br/> Entstanden anlässlich einer Informationsveranstaltung im Institut für Mathematik der Uni Wien.
 tags: uni, deu
----
+...
 
 &#x2200; Studis: &#x2203;: Life after Uni ??
 ===============================================

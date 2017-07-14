@@ -1,8 +1,8 @@
 ---
-title: Record Syntax, Lenses and Prisms: Part 3 - Prisms
+title: 'Record Syntax, Lenses and Prisms: Part 3 - Prisms'
 description: Prisms - a solution for the shanty problem
 tags: haskell, eng
----
+...
 
 Prisms
 ======

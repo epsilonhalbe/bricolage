@@ -2,7 +2,7 @@
 title: Marillenknödel
 description: Marillen, Topfenteig und Brösel - ein Rezept von Muttern
 tags: rezepte, deu, vegetarisch
----
+...
 
 # Marillenknödel
 

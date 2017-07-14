@@ -1,8 +1,8 @@
 ---
-title: Record Syntax, Lenses and Prisms: Part 2 - Lenses
+title: 'Record Syntax, Lenses and Prisms: Part 2 - Lenses'
 description: A short introduction to lenses
 tags: haskell, eng
----
+...
 
 Lenses
 ======
