@@ -1,0 +1,88 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic);
+
+.reveal section {
+}
+
+
+.reveal section img {
+    /* background: rgba(255, 255, 255, 0.12); */
+    border: none;
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.15) */
+}
+
+div.sourceCode {
+    margin: auto;
+    padding: 0px;
+    width: 900px;
+}
+
+pre.sourceCode {
+    margin: 5px;
+    padding: 5px;
+    width: 850px;
+}
+
+/* content: url(./img/logo.png); */
+body:after {
+position: fixed;
+bottom: 3.5em;
+left: 3.5em;
+}
+
+body {
+    background: white;
+    background-color: white;
+}
+
+/* %s/[#]16738f/#ff009f/g */
+/* %s/[#]ff009f/#16738f/g */
+.reveal h1 {
+  color: #16738f;
+  text-shadow: 2px 2px 2px  black;
+  text-align: center;
+}
+.reveal h2 ,
+.reveal h3 ,
+.reveal h4 ,
+.reveal h5 ,
+.reveal h6 {
+  color: slategrey;
+  text-align: center;
+}
+
+.reveal .controls .navigate-left,
+.reveal .controls .navigate-left.enabled {
+        border-right-color: #16738f;
+}
+
+/*********************************************
+ * NAVIGATION CONTROLS
+ *********************************************/
+.reveal .controls .navigate-left,
+.reveal .controls .navigate-left.enabled {
+  border-right-color: #16738f; }
+
+.reveal .controls .navigate-right,
+.reveal .controls .navigate-right.enabled {
+  border-left-color: #16738f; }
+
+.reveal .controls .navigate-up,
+.reveal .controls .navigate-up.enabled {
+  border-bottom-color: #16738f; }
+
+.reveal .controls .navigate-down,
+.reveal .controls .navigate-down.enabled {
+  border-top-color: #16738f; }
+
+.reveal .controls .navigate-left.enabled:hover {
+  border-right-color: #ffd2fa; }
+
+.reveal .controls .navigate-right.enabled:hover {
+  border-left-color: #ffd2fa; }
+
+.reveal .controls .navigate-up.enabled:hover {
+  border-bottom-color: #ffd2fa; }
+
+.reveal .controls .navigate-down.enabled:hover {
+  border-top-color: #ffd2fa; }
+
