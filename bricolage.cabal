@@ -22,5 +22,7 @@ executable bricolage
   build-depends:       base >=4.8 && <5.0
                ,       hakyll
                ,       pandoc
+               ,       text
+               ,       mime-types >= 0.1.0.8
   hs-source-dirs:      src
   default-language:    Haskell2010

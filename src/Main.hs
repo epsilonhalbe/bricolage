@@ -10,7 +10,10 @@ import           Data.Foldable (foldr1)
 --------------------------------------------------------------------------------
 import           Hakyll
 import           Hakyll.Web.Pandoc
+import qualified Data.Text as T
+import           Text.Pandoc.Class (runPure)
 import           Text.Pandoc.Options
+import           Text.Pandoc.Writers (writeRevealJs)
 import           System.IO.Unsafe (unsafePerformIO)
 
 --------------------------------------------------------------------------------
@@ -174,15 +177,18 @@ config = defaultConfiguration
           }
 
 pandocRevealJS :: String -> Compiler (Item String)
-pandocRevealJS tmpl = let revealjsWriterOptions = defaultHakyllWriterOptions
-                                                { writerIncremental = True
-                                                , writerTemplate = Just tmpl
-                                                , writerSectionDivs = False
-                                                , writerSlideLevel = Just 2
-                                                , writerSlideVariant = RevealJsSlides
-                                                , writerIgnoreNotes = True
-                                                , writerHtml5 = True }
-                       in writePandocWith revealjsWriterOptions <$> (readPandoc =<< getResourceString)
+pandocRevealJS tmpl =
+  let writerOptions = defaultHakyllWriterOptions
+                    { writerIncremental = True
+                    , writerTemplate = Just tmpl
+                    , writerSectionDivs = False
+                    , writerSlideLevel = Just 2
+                    }
+      revealJSPandoc (Item itemi doc) = case runPure $ writeRevealJs writerOptions doc of
+        Left err    -> error $ "Hakyll.Web.Pandoc.writePandocWith: " ++ show err
+        Right item' -> Item itemi $ T.unpack item'
+
+   in revealJSPandoc <$> (readPandoc =<< getResourceString)
 
 
 
