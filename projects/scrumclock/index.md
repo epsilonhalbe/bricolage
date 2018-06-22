@@ -16,8 +16,9 @@ This is my first attempt of using Elm for something meaningful.
 
  - [the clock](./app.html) free to use (the team is saved in your browser's
    local storage)
- - [the code](./src/Main.elm) and [elm-package](./elm-package.json) the code is
+ - initial version [of the code](./src/Main.elm) and [elm-package](./elm-package.json) which is
    licensed under a BSD3 License.
+ - or just clone the repo from [github](https://github.com/epsilonhalbe/scrumclock)
 
 I hope you find it useful.
 

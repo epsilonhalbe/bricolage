@@ -17,7 +17,7 @@ import           System.IO.Unsafe (unsafePerformIO)
 main :: IO ()
 main = hakyllWith config $ do
 
-    match (anyOf [ "**.svg" , "**.png" , "**/*.js"
+    match (anyOf [ "**.svg" , "**.png" , "**/*.js", "projects/**/*.wasm"
                  , "projects/**/*.elm" , "projects/**/*.html", "projects/**/*.json"
                  , "files/*", "favicon.ico"]) $ do
         route   idRoute
